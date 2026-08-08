@@ -1,24 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import FlashMessage from './FlashMessage';
 import Loading from './Loading';
 
-const SUBSCRIBE_THIS_URL = 'Theo dõi sản phẩm này';
-const STATUS_ACTICE = 'Kích hoạt';
-const NOTI_METHOD = 'Thông báo qua';
-const EXPECT_PRICE_PLACEHOLDER = 'Nhập giá mong đợi';
 const NOTI_METHOD_MAP = [
   { type: 'email', text: 'Email' },
   { type: 'messaging', text: 'Push notification' },
 ];
-const NOTI_WHEN = 'Thông báo khi';
 const NOTI_WHEN_MAP = [
-  { type: 'down_below', text: 'Giá nhỏ hơn' },
-  { type: 'down', text: 'Giá giảm' },
-  { type: 'any', text: 'Giá tăng và giảm' },
-  { type: 'available', text: 'Khi có hàng' },
+  { type: 'down_below', text: 'Price below' },
+  { type: 'down', text: 'Price drops' },
+  { type: 'any', text: 'Price goes up or down' },
+  { type: 'available', text: 'Back in stock' },
 ];
 const CLICK_SYNC_DELAY = 100;
 
@@ -139,6 +135,8 @@ class SubscribeBox extends Component {
   }
 
   render() {
+    const { t } = this.props;
+
     if (this.state.loading) return <Loading />;
 
     return (
@@ -148,26 +146,26 @@ class SubscribeBox extends Component {
                 <form className="pt-subscribe-box"
                     style={{ fontSize: '0.8em' }}>
                     <div className="col-auto mb-3">
-                        <h6>{SUBSCRIBE_THIS_URL}</h6>
+                        <h6>{t('Track this product')}</h6>
                             <div className="form-check form-check-inline">
                                 <input className="form-check-input"
                                         type="checkbox" id="checkActive"
                                         value="true" checked={this.state.info.active}
                                         onChange={this.handleChange('active', 'checkbox')} />
-                                <label className="form-check-label" htmlFor="checkActive">{STATUS_ACTICE}</label>
+                                <label className="form-check-label" htmlFor="checkActive">{t('Active')}</label>
                             </div>
                     </div>
 
                     {this.toggleActive(
                         <div className='col-auto mb-3 '>
-                            <h6>{NOTI_WHEN}</h6>
+                            <h6>{t('Notify when')}</h6>
                             {NOTI_WHEN_MAP.map((when) => {
                               const expectForm = <input type="number"
                                     className="mb-2 form-control form-control-sm"
                                     value={this.state.info.expect_price}
                                     onChange={this.handleChange('expect_price', 'number')}
                                     disabled={this.state.info.expect_when !== 'down_below'}
-                                    placeholder={EXPECT_PRICE_PLACEHOLDER} />;
+                                    placeholder={t('Enter expected price')} />;
 
                               return (
                                     <div className="form-check" key={when.type}>
@@ -177,7 +175,7 @@ class SubscribeBox extends Component {
                                                 checked={when.type === this.state.info.expect_when}
                                                 onChange={this.handleChange('expect_when')} />
                                         <label className="form-check-label" htmlFor={when.type}>
-                                            {when.text}
+                                            {t(when.text)}
                                             {when.type === 'down_below' ? expectForm : null}
                                         </label>
                                     </div>
@@ -188,7 +186,7 @@ class SubscribeBox extends Component {
 
                     {this.toggleActive(
                         <div className="col-auto mb-3">
-                            <h6>{NOTI_METHOD}</h6>
+                            <h6>{t('Notify via')}</h6>
                             {NOTI_METHOD_MAP.map((when) => (
                                     <div className="form-check" key={when.type}>
                                         <input
@@ -200,7 +198,7 @@ class SubscribeBox extends Component {
                                             .includes(when.type)}
                                           onChange={this.handleChange('methods', 'checkbox')} />
                                         <label className="form-check-label" htmlFor={when.type}>
-                                            {when.text} {when.type === 'email' ? this.state.info.email : ''}
+                                            {t(when.text)} {when.type === 'email' ? this.state.info.email : ''}
                                         </label>
                                     </div>
                             ))}
@@ -223,4 +221,4 @@ SubscribeBox.propTypes = {
 };
 SubscribeBox.defaultProps = {};
 
-export default SubscribeBox;
+export default withTranslation()(SubscribeBox);

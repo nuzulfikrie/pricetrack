@@ -1,11 +1,9 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react';
 import axios from 'axios';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import { withAuthentication } from '../Session';
-
-const ERROR_MESSAGE = 'Lỗi, vui lòng thử lại sau';
-const ERROR_MESSAGE_NOT_LOGIN = 'Vui lòng đăng nhập để thêm URL này';
 
 // TODO: bug in navigate's gastby
 const navigate = (url) => {
@@ -21,10 +19,11 @@ class AddUrlForm extends Component {
     }
 
     onSubmit = (event) => {
+      const { t } = this.props;
       const idToken = localStorage.getItem('authUserIdToken');
 
       if (!this.props.authUser || !this.props.authUser.email || !idToken) {
-        alert(ERROR_MESSAGE_NOT_LOGIN);
+        alert(t('Please sign in to add this URL'));
         navigate(`/view/${encodeURIComponent(this.state.inputUrl)}`);
       }
 
@@ -44,10 +43,10 @@ class AddUrlForm extends Component {
           console.error(err);
           if (err.response) {
             const data = err.response.data || {};
-            return alert(data.msg || ERROR_MESSAGE);
+            return alert(data.msg || t('Something went wrong, please try again later'));
           }
 
-          return alert(err.msg || ERROR_MESSAGE);
+          return alert(err.msg || t('Something went wrong, please try again later'));
         });
 
       event.preventDefault();
@@ -66,4 +65,4 @@ class AddUrlForm extends Component {
     }
 }
 
-export default withAuthentication(AddUrlForm);
+export default withAuthentication(withTranslation()(AddUrlForm));

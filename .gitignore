@@ -67,6 +67,7 @@ node_modules/
 
 # Firebase token
 *local*
+!hosting/src/locales/
 .runtimeconfig.json
 duyet-price-tracker-8b683b4e75b0.json
 
@@ -75,4 +76,5 @@ duyet-price-tracker-8b683b4e75b0.json
 .vscode
 
 *.json
+!hosting/src/locales/**/*.json
 .claude/worktrees/

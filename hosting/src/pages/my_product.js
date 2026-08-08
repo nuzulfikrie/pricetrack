@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
+import { graphql } from 'gatsby';
 import axios from 'axios';
 import { loadProgressBar } from 'axios-progress-bar';
 import 'axios-progress-bar/dist/nprogress.css';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import Layout from '../components/layout';
 import ProductList from '../components/Block/ProductList';
@@ -13,13 +15,6 @@ import SortControl from '../components/Block/SortControl';
 loadProgressBar();
 
 const DEFAULT_NUMBER_ITEMS = 15;
-const SUB_HEADLINE = 'Sản phẩm của tôi';
-
-const SORT_TEXT = {
-  my_product: 'Tất cả',
-  my_product_following: 'Đang theo dõi',
-};
-
 
 class MyProductComponent extends PureComponent {
   constructor(props) {
@@ -110,8 +105,10 @@ class MyProductComponent extends PureComponent {
     }
 
     renderListUrl() {
+      const { t } = this.props;
+
       if (this.state.loading) return <Loading />;
-      if (this.state.error) return 'Some thing went wrong';
+      if (this.state.error) return t('Something went wrong, please reload');
 
       return <ProductList urls={this.state.urls}
                             loadMore={this.state.next}
@@ -122,14 +119,20 @@ class MyProductComponent extends PureComponent {
 
 
     render() {
+      const { t } = this.props;
+      const sortText = {
+        my_product: t('All'),
+        my_product_following: t('Following'),
+      };
+
       return (
             <Layout>
                 <div className="pt-hero">
-                    <HeadSlogan sub_headline={SUB_HEADLINE} />
+                    <HeadSlogan sub_headline={t('My Products')} />
 
                     <div className="pt-sort-controls">
                         <SortControl
-                          sortText={SORT_TEXT}
+                          sortText={sortText}
                           currentMode={this.state.currentMode}
                           desc={this.state.desc} />
                    </div>
@@ -143,8 +146,29 @@ class MyProductComponent extends PureComponent {
     }
 }
 
-const MyProductComponentWithContext = () => <AuthUserContext.Consumer>
-        {(authUser) => (authUser ? <MyProductComponent authUser={authUser} /> : 'Loading ...')}
-    </AuthUserContext.Consumer>;
+const MyProductComponentTranslated = withTranslation()(MyProductComponent);
 
-export default withAuthentication(MyProductComponentWithContext);
+const MyProductComponentWithContext = (props) => {
+  const { t } = props;
+  return (
+    <AuthUserContext.Consumer>
+        {(authUser) => (authUser ? <MyProductComponentTranslated authUser={authUser} /> : t('Loading...'))}
+    </AuthUserContext.Consumer>
+  );
+};
+
+export default withAuthentication(withTranslation()(MyProductComponentWithContext));
+
+export const query = graphql`
+  query ($language: String!) {
+    locales: allLocale(filter: { language: { eq: $language } }) {
+      edges {
+        node {
+          ns
+          data
+          language
+        }
+      }
+    }
+  }
+`;

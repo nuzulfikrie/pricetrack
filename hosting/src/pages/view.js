@@ -6,7 +6,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { faExternalLinkAlt, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
-import 'moment/locale/vi';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import { withAuthentication, AuthUserContext } from '../components/Session';
 import Layout from '../components/layout';
@@ -15,12 +15,6 @@ import LogoPlaceHolder from '../components/Block/LogoPlaceHolder';
 import Loading from '../components/Block/Loading';
 import NotFound from '../components/Block/NotFound';
 import SubscribeBox from '../components/Block/SubscribeBox';
-
-const PRICE_TEXT = 'giá';
-const GO_TO = 'Tới';
-const CREATE_AT = 'Tạo';
-const LAST_PULL_AT = 'Cập nhật giá';
-const OUT_OF_STOCK = 'Hết hàng';
 
 class ViewPage extends Component {
   constructor(props) {
@@ -69,6 +63,8 @@ class ViewPage extends Component {
   }
 
     getData = () => {
+      const { t } = this.props;
+
       if (this.state.error === true) return {};
 
       return {
@@ -102,10 +98,10 @@ class ViewPage extends Component {
           }]
         },
         series: [{
-          name: PRICE_TEXT,
+          name: t('Price'),
           type: 'area',
           data: this.state.history_data.map(
-            (t) => [new Date(t.datetime).getTime(), t.price]
+            (d) => [new Date(d.datetime).getTime(), d.price]
           ),
           tooltip: {
             valueDecimals: 0
@@ -134,6 +130,8 @@ class ViewPage extends Component {
     }
 
     render() {
+      const { t } = this.props;
+
       if (this.state.error === true) {
         return <Layout><NotFound /></Layout>;
       }
@@ -153,7 +151,7 @@ class ViewPage extends Component {
                             <LogoPlaceHolder url={url} width={80} height={80} />
                             <div className="ml-3">
                             { url.inventory_status === false
-                              ? <span className="pt-badge pt-badge-danger mr-1">{OUT_OF_STOCK}</span>
+                              ? <span className="pt-badge pt-badge-danger mr-1">{t('Out of stock')}</span>
                               : '' }
                                 <a href={this.state.data.url}
                                     onClick={(e) => {
@@ -186,13 +184,13 @@ class ViewPage extends Component {
                                           e.preventDefault();
                                         }}>
                                         <FontAwesomeIcon icon={faShoppingCart} />
-                                        {' '}{GO_TO} {url.domain}
+                                        {' '}{t('Go to')} {url.domain}
                                 </a>
 
                                 <small className="ml-3 pt-product-meta">
                                     {url.deeplinkClick ? `${url.deeplinkClick} click${url.deeplinkClick > 1 ? 's' : ''} | ` : ''}
-                                    {CREATE_AT} {moment(url.created_at).fromNow()} | &nbsp;
-                                    {LAST_PULL_AT}: {url.last_pull_at && moment(url.last_pull_at).isValid() ? moment(url.last_pull_at).fromNow() : 'chưa cập nhật'}
+                                    {t('Added')} {moment(url.created_at).fromNow()} | &nbsp;
+                                    {t('Updated')}: {url.last_pull_at && moment(url.last_pull_at).isValid() ? moment(url.last_pull_at).fromNow() : t('not updated yet')}
                                 </small>
                             </div>
                         </div>
@@ -228,8 +226,10 @@ class ViewPage extends Component {
     }
 }
 
+const ViewPageTranslated = withTranslation()(ViewPage);
+
 const ViewPageComponent = (props) => <AuthUserContext.Consumer>
-        {(authUser) => <ViewPage {...props} authUser={authUser} />}
+        {(authUser) => <ViewPageTranslated {...props} authUser={authUser} />}
     </AuthUserContext.Consumer>;
 
 export default withAuthentication(ViewPageComponent);

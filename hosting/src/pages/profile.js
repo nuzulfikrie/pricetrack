@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'gatsby';
+import { graphql } from 'gatsby';
+import { Link, useTranslation } from 'gatsby-plugin-react-i18next';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
@@ -9,22 +10,14 @@ import { withAuthentication, AuthUserContext } from '../components/Session';
 import SignOutLink from '../components/Block/SignOutLink';
 import MessagingRequestPermission from '../components/Block/MessagingRequestPermission';
 
-const PLEASE_LOGIN = 'Vui lòng đăng nhập';
-const HEAD_BASIC_INFO = 'Thông tin cá nhân';
-const TEXT_EMAIL = 'Email';
-const LAST_LOGIN = 'Đăng nhập';
-const REGISTER_AT = 'Đăng ký';
-const HEAD_LINKS = 'Liên kết';
-const LINK_MY_PRODUCT = 'Sản phẩm của tôi';
-const HEAD_OPTION = 'Tùy chỉnh';
-
 const style = {
   textSm: {
     fontSize: '13px'
   }
 };
 
-const RequestPermissionLink = ({ onClick, style }) => {
+const RequestPermissionLink = ({ onClick, style: styleProp }) => {
+  const { t } = useTranslation();
   let token = null;
   try {
     token = !!localStorage.getItem('messagingToken');
@@ -33,22 +26,21 @@ const RequestPermissionLink = ({ onClick, style }) => {
   }
 
   return (
-        <button className="btn btn-link mt-1 p-0" onClick={onClick} style={style}>
-            Bật thông báo trình duyệt
+        <button className="btn btn-link mt-1 p-0" onClick={onClick} style={styleProp}>
+            {t('Enable browser notifications')}
             <FontAwesomeIcon icon={token ? faCheckCircle : faExclamationCircle} className="ml-1 p-0" color={token ? 'green' : 'gray'} />
         </button>
   );
 };
 
-class Profile extends React.Component {
-  render() {
-    if (!this.props.authUser) {
-      return <Layout>{PLEASE_LOGIN}</Layout>;
-    }
+const Profile = ({ authUser }) => {
+  const { t } = useTranslation();
 
-    const { authUser } = this.props;
+  if (!authUser) {
+    return <Layout>{t('Please sign in')}</Layout>;
+  }
 
-    return (
+  return (
             <Layout>
                 <div style={style.textSm}>
                     <div className="pt-card row my-3">
@@ -61,27 +53,27 @@ class Profile extends React.Component {
                         </div>
 
                         <div className="col">
-                            <h6>{HEAD_BASIC_INFO}</h6>
+                            <h6>{t('Basic information')}</h6>
                             <ul style={style.textSm}>
                                 <li>
-                                    {TEXT_EMAIL}: {authUser.email}
+                                    {t('Email')}: {authUser.email}
                                 </li>
                                 <li>
-                                    {REGISTER_AT}: {
+                                    {t('Registered')}: {
                                         moment(parseInt(authUser.createdAt, 10)).fromNow()
                                     }
                                 </li>
                                 <li>
-                                    {LAST_LOGIN}: {
+                                    {t('Last sign in')}: {
                                         moment(parseInt(authUser.lastLoginAt, 10)).fromNow()
                                     }
                                 </li>
                             </ul>
 
-                            <h6>{HEAD_LINKS}</h6>
+                            <h6>{t('Links')}</h6>
                             <ul style={style.textSm}>
                                 <li>
-                                    <Link to="/my_product/">{LINK_MY_PRODUCT}</Link>
+                                    <Link to="/my_product/">{t('My Products')}</Link>
                                 </li>
                                 <li>
                                     <SignOutLink style={style.textSm} />
@@ -89,10 +81,10 @@ class Profile extends React.Component {
                             </ul>
                         </div>
                         <div className="col">
-                            <h6>{HEAD_OPTION}</h6>
+                            <h6>{t('Preferences')}</h6>
                             <div className="form-check">
                                 <input className="form-check-input" type="checkbox" id="setting" disabled="disabled" value="hide_email" />
-                                <label className="form-check-label" forhtml="setting">Ẩn email của tôi</label>
+                                <label className="form-check-label" forhtml="setting">{t('Hide my email')}</label>
                             </div>
 
                             <div className="form-check">
@@ -104,9 +96,8 @@ class Profile extends React.Component {
                     </div>
                 </div>
             </Layout>
-    );
-  }
-}
+  );
+};
 
 const ProfileComponent = (props) => (
     <AuthUserContext.Consumer>
@@ -115,3 +106,17 @@ const ProfileComponent = (props) => (
 );
 
 export default withAuthentication(ProfileComponent);
+
+export const query = graphql`
+  query ($language: String!) {
+    locales: allLocale(filter: { language: { eq: $language } }) {
+      edges {
+        node {
+          ns
+          data
+          language
+        }
+      }
+    }
+  }
+`;

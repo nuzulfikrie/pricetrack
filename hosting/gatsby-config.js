@@ -6,9 +6,37 @@ module.exports = {
   plugins: [
     'gatsby-plugin-react-helmet',
     {
-      resolve: 'gatsby-plugin-create-client-paths',
+      resolve: 'gatsby-source-filesystem',
       options: {
-        prefixes: ['/view/*']
+        path: `${__dirname}/src/locales`,
+        name: 'locale',
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-react-i18next',
+      options: {
+        localeJsonSourceName: 'locale',
+        languages: ['en', 'ms'],
+        defaultLanguage: 'en',
+        siteUrl: process.env.HOSTING_URL || 'https://pricetracker.fikriesalam.dev',
+        redirect: false,
+        trailingSlash: 'always',
+        i18nextOptions: {
+          interpolation: {
+            escapeValue: false
+          },
+          keySeparator: false,
+          nsSeparator: false
+        },
+        pages: [
+          {
+            // /view/:id is a client-only route (see gatsby-plugin-create-client-paths
+            // above); it isn't a real Gatsby page, so it can't be multiplied per
+            // language like other pages. Keep it English-only/unprefixed.
+            matchPath: '/view/:splat*',
+            languages: ['en']
+          }
+        ]
       },
     },
     {

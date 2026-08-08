@@ -1,9 +1,12 @@
 import React from 'react';
-import { Link } from 'gatsby';
+import { Link, useTranslation } from 'gatsby-plugin-react-i18next';
 
 import MENUS from '../../constants/menu';
 
-export default ({ authUser }) => (
+export default ({ authUser }) => {
+  const { t } = useTranslation();
+
+  return (
     <div className="pt-nav" style={{ justifyContent: 'center', marginBottom: '8px' }}>
         {
             MENUS.map((item) => {
@@ -12,10 +15,11 @@ export default ({ authUser }) => (
                     <Link key={item.path}
                         to={item.path}
                         activeStyle={{ fontWeight: 700 }}>
-                        {item.text}
+                        {t(item.text)}
                     </Link>
               );
             })
         }
     </div>
-);
+  );
+};

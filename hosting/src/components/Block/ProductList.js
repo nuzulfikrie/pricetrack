@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from 'gatsby';
+import { Link, withTranslation } from 'gatsby-plugin-react-i18next';
 import { OutboundLink as A } from 'gatsby-plugin-google-gtag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -8,21 +8,14 @@ import {
   faUser, faHandPointer, faClock, faRotate
 } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
-import 'moment/locale/vi';
 
 import LogoPlaceHolder from './LogoPlaceHolder';
 import { formatPrice, openDeepLink } from '../../utils';
 
-const EMPTY_STRING = 'Không có';
-const GO_TO = 'Tới';
-const VIEW_HISTORY = 'Lịch sử giá';
-const CREATE_AT = 'Tạo';
-const LAST_PULL_AT = 'Cập nhật giá';
-const OUT_OF_STOCK = 'Hết hàng';
-const LOAD_MORE = 'Tải thêm';
-
 class ProductList extends React.Component {
   renderItem(url) {
+    const { t } = this.props;
+
     return (
         <div className="pt-product-item" key={url.url}>
           <div className="pt-product-logo-col">
@@ -35,7 +28,7 @@ class ProductList extends React.Component {
           <div className="pt-product-body">
               <div className="pt-product-title">
                   { url.inventory_status === false
-                    ? <span className="pt-badge pt-badge-danger mr-1">{OUT_OF_STOCK}</span>
+                    ? <span className="pt-badge pt-badge-danger mr-1">{t('Out of stock')}</span>
                     : '' }
 
                   <Link to={`/view/${url.id}`}>
@@ -63,10 +56,10 @@ class ProductList extends React.Component {
               <div className="pt-product-actions">
                 <A href={url.url} className='pt-btn pt-btn-primary pt-btn-sm'
                     onClick={(e) => { openDeepLink(url.redirect); e.preventDefault(); }}>
-                    <FontAwesomeIcon icon={faShoppingCart} /> {GO_TO} {url.domain}
+                    <FontAwesomeIcon icon={faShoppingCart} /> {t('Go to')} {url.domain}
                 </A>
                 <Link className='pt-btn pt-btn-secondary pt-btn-sm' to={`/view/${url.id}`}>
-                    <FontAwesomeIcon icon={faHistory} /> {VIEW_HISTORY}
+                    <FontAwesomeIcon icon={faHistory} /> {t('Price history')}
                 </Link>
               </div>
 
@@ -82,11 +75,11 @@ class ProductList extends React.Component {
                     : ''}
                   <span className="pt-meta-item">
                       <FontAwesomeIcon icon={faClock} />
-                      {' '}{CREATE_AT} {moment(url.created_at).fromNow()}
+                      {' '}{t('Added')} {moment(url.created_at).fromNow()}
                   </span>
                   <span className="pt-meta-item">
                       <FontAwesomeIcon icon={faRotate} />
-                      {' '}{LAST_PULL_AT} {url.last_pull_at && moment(url.last_pull_at).isValid() ? moment(url.last_pull_at).fromNow() : 'chưa cập nhật'}
+                      {' '}{t('Updated')} {url.last_pull_at && moment(url.last_pull_at).isValid() ? moment(url.last_pull_at).fromNow() : t('not updated yet')}
                   </span>
               </div>
           </div>
@@ -101,7 +94,9 @@ class ProductList extends React.Component {
   }
 
   render() {
-    if (!this.props.urls.length) return EMPTY_STRING;
+    const { t } = this.props;
+
+    if (!this.props.urls.length) return t('No items');
 
     const isGrid = this.props.view === 'grid';
     const containerClass = isGrid ? 'pt-product-grid' : 'pt-product-list';
@@ -117,7 +112,7 @@ class ProductList extends React.Component {
                     <span className="pt-btn pt-btn-secondary"
                         onClick={this.props.onClickLoadMore}
                         key="load-more-btn">
-                        {LOAD_MORE}
+                        {t('Load more')}
                     </span>
                 </div>
               : ''}
@@ -135,4 +130,4 @@ ProductList.defaultProps = {
   view: 'list'
 };
 
-export default ProductList;
+export default withTranslation()(ProductList);

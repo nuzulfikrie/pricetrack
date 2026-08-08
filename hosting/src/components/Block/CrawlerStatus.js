@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
@@ -9,7 +10,7 @@ const LogoOrDomain = ({ logo, domain }) => {
   return domain || null;
 };
 
-export default class CrawlerStatus extends Component {
+class CrawlerStatus extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,8 +39,10 @@ export default class CrawlerStatus extends Component {
 
 
   render() {
-    if (this.state.loading) return 'Loading ...';
-    if (!this.state.status || !Object.keys(this.state.status).length) return 'No info';
+    const { t } = this.props;
+
+    if (this.state.loading) return t('Loading...');
+    if (!this.state.status || !Object.keys(this.state.status).length) return t('No data');
 
     const active = <FontAwesomeIcon icon={faCheckCircle} color="green" />;
     const deactive = <FontAwesomeIcon icon={faTimesCircle} color="red" />;
@@ -49,7 +52,7 @@ export default class CrawlerStatus extends Component {
         <th scope="row">
           <LogoOrDomain logo={domain.logo} domain={domain.domain} />
         </th>
-        <td>{domain.time_check} phút</td>
+        <td>{domain.time_check} {t('min')}</td>
         <td>{domain.active ? active : deactive}</td>
       </tr>
     ));
@@ -58,9 +61,9 @@ export default class CrawlerStatus extends Component {
       <table className="pt-table">
         <thead>
           <tr>
-            <th scope="col">Dịch vụ</th>
-            <th scope="col">Thời gian cập nhật</th>
-            <th scope="col text-center">Trạng thái</th>
+            <th scope="col">{t('Service')}</th>
+            <th scope="col">{t('Last updated')}</th>
+            <th scope="col text-center">{t('Status')}</th>
           </tr>
         </thead>
         <tbody>{_table}</tbody>
@@ -68,3 +71,5 @@ export default class CrawlerStatus extends Component {
     );
   }
 }
+
+export default withTranslation()(CrawlerStatus);

@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { navigate } from 'gatsby';
 import { OutboundLink as A } from 'gatsby-plugin-google-gtag';
+import { useTranslation, useI18next } from 'gatsby-plugin-react-i18next';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
@@ -11,20 +11,20 @@ import * as ROUTES from '../../constants/routes';
 import Menu from './menu';
 import AddUrlForm from './addUrlForm';
 import Logo from './Logo';
+import LanguageSwitcher from '../Block/LanguageSwitcher';
 
 
 import './header.css';
 import notiIcon from './notification.svg';
 import profileIcon from './profile.svg';
 
-const SIGN_IN = 'Đăng nhập';
-const TITLE = 'Theo dõi giá và hoàn tiền | Price tracker & Cashback';
-
 const UserButton = ({ authUser, onClickSignIn, onClickProfile }) => {
+  const { t } = useTranslation();
+
   if (!authUser) {
     return (
       <button className="pt-btn pt-btn-secondary pt-btn-sm" onClick={onClickSignIn}>
-        {SIGN_IN} <FontAwesomeIcon icon={faGoogle} />
+        {t('Sign in')} <FontAwesomeIcon icon={faGoogle} />
       </button>
     );
   }
@@ -43,76 +43,81 @@ const UserButton = ({ authUser, onClickSignIn, onClickProfile }) => {
 
 const NavigationAuth = ({
   authUser, onClickSignIn, onClickProfile, inputUrl, firebase
-}) => (
-  <Fragment>
-    <Helmet bodyAttributes={{
-      class: 'bg-light'
-    }}>
-      <meta charSet="utf-8" />
-      <title>{TITLE}</title>
-    </Helmet>
-    <header className="pt-header">
-      <div className="pt-header-inner">
-        <div>
-          <Logo />
-        </div>
-        <div className="pt-search-form">
-          <AddUrlForm authUser={authUser} inputUrl={inputUrl} firebase={firebase} />
-        </div>
-        <div>
-          <div className="d-flex justify-content-end align-items-center" style={{ gap: '8px' }}>
-            <A className="text-muted" href="/" >
-              <img src={notiIcon} alt="" />
-            </A>
+}) => {
+  const { t } = useTranslation();
 
-            <UserButton
-              authUser={authUser}
-              onClickProfile={onClickProfile}
-              onClickSignIn={onClickSignIn} />
+  return (
+    <Fragment>
+      <Helmet bodyAttributes={{
+        class: 'bg-light'
+      }}>
+        <meta charSet="utf-8" />
+        <title>{t('Price Tracker & Cashback | Track prices, get cashback')}</title>
+      </Helmet>
+      <header className="pt-header">
+        <div className="pt-header-inner">
+          <div>
+            <Logo />
+          </div>
+          <div className="pt-search-form">
+            <AddUrlForm authUser={authUser} inputUrl={inputUrl} firebase={firebase} />
+          </div>
+          <div>
+            <div className="d-flex justify-content-end align-items-center" style={{ gap: '8px' }}>
+              <LanguageSwitcher />
+
+              <A className="text-muted" href="/" >
+                <img src={notiIcon} alt="" />
+              </A>
+
+              <UserButton
+                authUser={authUser}
+                onClickProfile={onClickProfile}
+                onClickSignIn={onClickSignIn} />
+            </div>
           </div>
         </div>
-      </div>
-    </header>
-    <Menu authUser={authUser} />
-  </Fragment>
-);
+      </header>
+      <Menu authUser={authUser} />
+    </Fragment>
+  );
+};
 
 
-class NavBarBase extends Component {
-  state = { error: null, inputUrl: this.props.inputUrl }
+const NavBarBase = ({ firebase, inputUrl: initialInputUrl }) => {
+  const [error, setError] = useState(null);
+  const [inputUrl] = useState(initialInputUrl);
+  const { navigate } = useI18next();
 
-  onClickSignIn = (event) => {
-    this.props.firebase
+  const onClickSignIn = (event) => {
+    firebase
       .doSignInWithGoogle()
       .then((socialAuthUser) => {
         console.log('socialAuthUser', socialAuthUser);
-        this.setState({ error: null });
+        setError(null);
         navigate(ROUTES.HOME);
       })
-      .catch((error) => {
-        console.error(error);
-        this.setState({ error });
+      .catch((err) => {
+        console.error(err);
+        setError(err);
       });
 
     event.preventDefault();
-  }
+  };
 
-  onClickProfile = () => navigate(ROUTES.PROFILE)
+  const onClickProfile = () => navigate(ROUTES.PROFILE);
 
-  render() {
-    return (
-      <AuthUserContext.Consumer>
-        {(authUser) => <NavigationAuth authUser={authUser}
-                                     onClickSignIn={this.onClickSignIn}
-                                     onClickProfile={this.onClickProfile}
-                                     onChangeInput={this.onChangeInput}
-                                     onSubmit={this.onSubmit}
-                                     inputUrl={this.state.inputUrl}
-                                     firebase={this.props.firebase} />}
-      </AuthUserContext.Consumer>
-    );
-  }
-}
+  return (
+    <AuthUserContext.Consumer>
+      {(authUser) => <NavigationAuth authUser={authUser}
+                                   onClickSignIn={onClickSignIn}
+                                   onClickProfile={onClickProfile}
+                                   inputUrl={inputUrl}
+                                   firebase={firebase}
+                                   error={error} />}
+    </AuthUserContext.Consumer>
+  );
+};
 
 const NavBar = withFirebase(NavBarBase);
 export default NavBar;

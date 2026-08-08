@@ -5,11 +5,11 @@ import {
 const MENUS = [
   {
     path: HOME,
-    text: 'Trang chủ'
+    text: 'Home'
   },
   {
     path: MY_PRODUCT,
-    text: 'Sản phẩm của tôi',
+    text: 'My Products',
     auth: true
   },
   {
@@ -19,7 +19,7 @@ const MENUS = [
   },
   {
     path: ABOUT,
-    text: 'Giới thiệu'
+    text: 'About'
   }
 ];
 

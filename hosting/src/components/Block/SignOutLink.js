@@ -1,26 +1,24 @@
 /* eslint-disable no-alert */
 import React from 'react';
-import { navigate } from 'gatsby';
+import { useTranslation, useI18next } from 'gatsby-plugin-react-i18next';
 import { withFirebase } from '../Firebase';
 
 import { HOME } from '../../constants/routes';
 
-const LOGOUT_CONFIRM_TEXT = 'Bạn có chắc?';
-const LOGOUT_TEXT = 'Đăng xuất';
+const SignOutLink = ({ firebase, style: styleProp }) => {
+  const { t } = useTranslation();
+  const { navigate } = useI18next();
 
-class SignOutLink extends React.Component {
-  doLogout = (e) => {
-    if (window.confirm(LOGOUT_CONFIRM_TEXT) === true) {
-      this.props.firebase.doSignOut();
+  const doLogout = (e) => {
+    if (window.confirm(t('Are you sure?')) === true) {
+      firebase.doSignOut();
       navigate(HOME);
     }
     e.preventDefault();
-  }
+  };
 
-  render() {
-    const style = { ...this.props.style, padding: 0 };
-    return <button className='btn btn-link' style={style} onClick={this.doLogout}>{LOGOUT_TEXT}</button>;
-  }
-}
+  const style = { ...styleProp, padding: 0 };
+  return <button className='btn btn-link' style={style} onClick={doLogout}>{t('Sign out')}</button>;
+};
 
 export default withFirebase(SignOutLink);

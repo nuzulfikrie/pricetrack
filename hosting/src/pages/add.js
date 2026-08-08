@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { graphql } from 'gatsby';
 import { loadProgressBar } from 'axios-progress-bar';
 import 'axios-progress-bar/dist/nprogress.css';
 
@@ -57,3 +58,17 @@ const IndexWithContext = (props) => <AuthUserContext.Consumer>
 </AuthUserContext.Consumer>;
 
 export default withAuthentication(IndexWithContext);
+
+export const query = graphql`
+  query ($language: String!) {
+    locales: allLocale(filter: { language: { eq: $language } }) {
+      edges {
+        node {
+          ns
+          data
+          language
+        }
+      }
+    }
+  }
+`;

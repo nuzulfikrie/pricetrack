@@ -1,1 +1,25 @@
 /* Header styles are now handled by design-system.css (.pt-header, .pt-header-inner, etc.) */
+
+.pt-lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.pt-lang-switcher-item {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-ink-soft, #767676);
+  text-decoration: none;
+}
+
+.pt-lang-switcher-item:hover {
+  background-color: var(--color-surface-soft, #f0f0f0);
+  text-decoration: none;
+}
+
+.pt-lang-switcher-item.is-active {
+  font-weight: 700;
+  color: var(--color-ink, #1a1a1a);
+}

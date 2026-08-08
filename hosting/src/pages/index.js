@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
+import { graphql } from 'gatsby';
 import axios from 'axios';
 import { loadProgressBar } from 'axios-progress-bar';
 import 'axios-progress-bar/dist/nprogress.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faList, faTableCells } from '@fortawesome/free-solid-svg-icons';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import Layout from '../components/layout';
 import ProductList from '../components/Block/ProductList';
@@ -18,10 +20,7 @@ loadProgressBar();
 const VIEW_STORAGE_KEY = 'pt_view_mode';
 
 const DEFAULT_NUMBER_ITEMS = 15;
-const SORT_TEXT = {
-  price_change: 'Giá mới thay đổi',
-  last_added: 'Mới thêm',
-};
+const SORT_MODES = ['price_change', 'last_added'];
 
 
 class IndexComponent extends PureComponent {
@@ -43,14 +42,7 @@ class IndexComponent extends PureComponent {
       };
     }
 
-    setViewMode(viewMode) {
-      this.setState({ viewMode });
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(VIEW_STORAGE_KEY, viewMode);
-      }
-    }
-
-    orderByModes = () => Object.keys(SORT_TEXT)
+    orderByModes = () => SORT_MODES
 
     setOtherBy(mode) {
       const currentMode = mode;
@@ -125,8 +117,10 @@ class IndexComponent extends PureComponent {
     }
 
     renderListUrl() {
+      const { t } = this.props;
+
       if (this.state.loading) return <Loading />;
-      if (this.state.error) return 'Some thing went wrong';
+      if (this.state.error) return t('Something went wrong, please reload');
 
       return <ProductList urls={this.state.urls}
             view={this.state.viewMode}
@@ -141,6 +135,12 @@ class IndexComponent extends PureComponent {
     }
 
     render() {
+      const { t } = this.props;
+      const sortText = {
+        price_change: t('Price changed'),
+        last_added: t('Newly added'),
+      };
+
       return (
             <Layout>
                 <div className="pt-hero">
@@ -149,7 +149,7 @@ class IndexComponent extends PureComponent {
                     <div className="pt-hero-controls">
                       <div className="pt-sort-controls">
                         <SortControl
-                            sortText={SORT_TEXT}
+                            sortText={sortText}
                             currentMode={this.state.currentMode}
                             desc={this.state.desc} />
                       </div>
@@ -181,8 +181,24 @@ class IndexComponent extends PureComponent {
     }
 }
 
+const IndexComponentTranslated = withTranslation()(IndexComponent);
+
 const IndexWithContext = (props) => <AuthUserContext.Consumer>
-    {(authUser) => <IndexComponent authUser={authUser} {...props} />}
+    {(authUser) => <IndexComponentTranslated authUser={authUser} {...props} />}
 </AuthUserContext.Consumer>;
 
 export default withAuthentication(IndexWithContext);
+
+export const query = graphql`
+  query ($language: String!) {
+    locales: allLocale(filter: { language: { eq: $language } }) {
+      edges {
+        node {
+          ns
+          data
+          language
+        }
+      }
+    }
+  }
+`;

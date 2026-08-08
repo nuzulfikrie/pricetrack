@@ -1,15 +1,15 @@
 {
   "projects": {
-    "default": "duyet-price-tracker"
+    "default": "fikrie-shopee-tracker"
   },
   "targets": {
-    "duyet-price-tracker": {
+    "fikrie-shopee-tracker": {
       "hosting": {
         "pricetrack": [
-          "pricetrack"
+          "fikrie-shopee-tracker"
         ],
         "pricetrack-dev": [
-          "duyet-price-tracker"
+          "fikrie-shopee-tracker"
         ]
       }
     }

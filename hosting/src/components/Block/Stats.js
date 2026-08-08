@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { withTranslation } from 'gatsby-plugin-react-i18next';
 
-const NUM_URL_TEXT = 'Số link sản phẩm';
-const NUM_CRONJOB_TEXT = 'Số lần cập nhật';
-
-export default class Stats extends Component {
+class Stats extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -29,19 +27,21 @@ export default class Stats extends Component {
   }
 
   render() {
-    if (this.state.loading) return 'Loading ...';
-    if (!Object.keys(this.state.statistics).length) return 'No info';
+    const { t } = this.props;
+
+    if (this.state.loading) return t('Loading...');
+    if (!Object.keys(this.state.statistics).length) return t('No data');
 
     return (
       <table className="pt-table">
         <tbody>
           <tr>
-              <td style={{ textAlign: 'right' }}>{NUM_URL_TEXT}</td>
+              <td style={{ textAlign: 'right' }}>{t('Number of tracked products')}</td>
               <td>{this.state.statistics.url_count}</td>
           </tr>
 
           <tr>
-              <td style={{ textAlign: 'right' }}>{NUM_CRONJOB_TEXT}</td>
+              <td style={{ textAlign: 'right' }}>{t('Number of price updates')}</td>
               <td>{this.state.statistics.num_url_cronjob_triggered}</td>
           </tr>
         </tbody>
@@ -49,3 +49,5 @@ export default class Stats extends Component {
     );
   }
 }
+
+export default withTranslation()(Stats);
