@@ -17,13 +17,13 @@ module.exports = async(email, params) => {
     console.info(`======================= ${JSON.stringify(params)}, ${templateType}`)
 
     const MESSAGE_BODY = {
-        available: `Sản phẩm bạn đang theo dõi vừa có hàng`,
-        price_change: `Sản phẩm bạn đang theo dõi vừa thay đổi giá`,
-        down_below: `Sản phẩm bạn đang theo dõi có giá nhỏ hơn số đang mong đợi`,
+        available: `The product you're tracking is back in stock`,
+        price_change: `The product you're tracking just changed price`,
+        down_below: `The product you're tracking is now below your expected price`,
     }
 
-    const BODY = templateType === 'available' 
-                    ? `CÓ HÀNG - ${MESSAGE_BODY[templateType]}`
+    const BODY = templateType === 'available'
+                    ? `IN STOCK - ${MESSAGE_BODY[templateType]}`
                     : `${formatPrice(params.latest_price, false, params.info.currency)} `
                       + `(${formatPrice(params.price_change, true, params.info.currency)}) `
                       + `${MESSAGE_BODY[templateType]}`

@@ -1,6 +1,6 @@
-/* eslint-disable no-alert */
 import React, { Component } from 'react';
 import axios from 'axios';
+import FlashMessage from 'react-flash-message';
 import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 import { withAuthentication } from '../Session';
@@ -12,7 +12,7 @@ const navigate = (url) => {
 };
 
 class AddUrlForm extends Component {
-    state = { error: null, inputUrl: this.props.inputUrl || '' }
+    state = { error: null, inputUrl: this.props.inputUrl || '', flashMessage: null }
 
     onChangeInput = (event) => {
       this.setState({ inputUrl: event.target.value });
@@ -23,7 +23,7 @@ class AddUrlForm extends Component {
       const idToken = localStorage.getItem('authUserIdToken');
 
       if (!this.props.authUser || !this.props.authUser.email || !idToken) {
-        alert(t('Please sign in to add this URL'));
+        this.showFlashMessage(t('Please sign in to add this URL'));
         navigate(`/view/${encodeURIComponent(this.state.inputUrl)}`);
       }
 
@@ -43,13 +43,18 @@ class AddUrlForm extends Component {
           console.error(err);
           if (err.response) {
             const data = err.response.data || {};
-            return alert(data.msg || t('Something went wrong, please try again later'));
+            this.showFlashMessage(data.msg || t('Something went wrong, please try again later'));
+            return;
           }
 
-          return alert(err.msg || t('Something went wrong, please try again later'));
+          this.showFlashMessage(err.msg || t('Something went wrong, please try again later'));
         });
 
       event.preventDefault();
+    }
+
+    showFlashMessage = (message) => {
+      this.setState({ flashMessage: null }, () => this.setState({ flashMessage: message }));
     }
 
     render() {
@@ -60,6 +65,12 @@ class AddUrlForm extends Component {
                        onChange={this.onChangeInput}
                        value={this.state.inputUrl}
                        aria-label="URL" />
+
+                {this.state.flashMessage
+                  ? <FlashMessage duration={4000}>
+                      <div className="pt-flash">{this.state.flashMessage}</div>
+                    </FlashMessage>
+                  : null}
             </form>
       );
     }

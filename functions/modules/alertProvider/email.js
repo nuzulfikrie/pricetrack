@@ -21,14 +21,14 @@ const mailTransport = nodemailer.createTransport({
 const APP_NAME = `Pricetrack`
 const FROM_EMAIL = `pricetrack.apps@gmail.com`
 const EMAIL_SUBJECT = {
-    available: ({APP_NAME, PRODUCT_NAME}) => `[${APP_NAME}] Sản phẩm vừa có hàng: ${PRODUCT_NAME}`,
-    price_change: ({APP_NAME, PRODUCT_NAME}) => `[${APP_NAME}] Sản phẩm vừa thay đổi giá: ${PRODUCT_NAME}`,
-    down_below: ({APP_NAME, PRODUCT_NAME}) => `[${APP_NAME}] Sản phẩm vừa thay đổi giá mong đợi: ${PRODUCT_NAME}`,
+    available: ({APP_NAME, PRODUCT_NAME}) => `[${APP_NAME}] Back in stock: ${PRODUCT_NAME}`,
+    price_change: ({APP_NAME, PRODUCT_NAME}) => `[${APP_NAME}] Price changed: ${PRODUCT_NAME}`,
+    down_below: ({APP_NAME, PRODUCT_NAME}) => `[${APP_NAME}] Price reached your target: ${PRODUCT_NAME}`,
 }
 const EMAIL_HTML_HEADLINE = {
-    available: `Sản phẩm bạn đang theo dõi vừa có hàng`,
-    price_change: `Sản phẩm bạn đang theo dõi vừa thay đổi giá`,
-    down_below: `Sản phẩm bạn đang theo dõi có giá nhỏ hơn số đang mong đợi`,
+    available: `The product you're tracking is back in stock`,
+    price_change: `The product you're tracking just changed price`,
+    down_below: `The product you're tracking is now below your expected price`,
 }
 
 const sendEmail = async (email, params) => {
@@ -41,33 +41,33 @@ const sendEmail = async (email, params) => {
     console.info(`======================= ${JSON.stringify(params)}, ${templateType}`)
 
     const htmlHeadLine = EMAIL_HTML_HEADLINE[templateType]
-    const htmlProductStatus = templateType === 'available' 
-                                    ? `<li>Trạng thái: <strong>${params.inventory_status ? 'Có hàng' : 'Hết hàng'}</strong></li>`
+    const htmlProductStatus = templateType === 'available'
+                                    ? `<li>Status: <strong>${params.inventory_status ? 'In stock' : 'Out of stock'}</strong></li>`
                                     : ``
 
     const htmlProductExpectPrice = templateType === 'down_below'
-                                    ? `<li>Giá mong đợi: ${formatPrice(params.expect_price)}</li>`
+                                    ? `<li>Expected price: ${formatPrice(params.expect_price)}</li>`
                                     : ``
 
     const productLink = urlFor(`redirect/${params.id}`, { ref: 'email' })
 
     // The user subscribed to the newsletter.
     mailOptions.subject = EMAIL_SUBJECT[templateType]({PRODUCT_NAME: params.info.name, APP_NAME})
-    mailOptions.html = `Xin chào ${email || ''}
+    mailOptions.html = `Hi ${email || ''}
     <br /><br />
     ${htmlHeadLine}: <br />
 
     <ul>
         <li>
-            Sản phẩm: <a href="${productLink}">${params.info.name}</a>
+            Product: <a href="${productLink}">${params.info.name}</a>
             <a href="${productLink}">(${params.domain})</a>
         </li>
         <li>
-            Price Track: <a href="${hostingUrl}/view/${params.id}"><strong>Lịch sử giá</strong></a> | 
-            <a href="${productLink}"><strong>Tới trang sản phẩm (${params.domain})</strong></a>
+            Price Track: <a href="${hostingUrl}/view/${params.id}"><strong>Price history</strong></a> |
+            <a href="${productLink}"><strong>Go to product (${params.domain})</strong></a>
         </li>
         <li>
-            Giá: ${formatPrice(params.latest_price, false, params.info.currency)} 
+            Price: ${formatPrice(params.latest_price, false, params.info.currency)}
             <strong style="color: ${params.price_change < 0 ? '#2e7d32' : '#c62828'}">
                 (${formatPrice(params.price_change, true, params.info.currency)})
             </strong>

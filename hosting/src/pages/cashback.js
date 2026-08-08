@@ -1,8 +1,8 @@
-/* eslint-disable no-alert */
 import React, { Component } from 'react';
 import { graphql } from 'gatsby';
 import axios from 'axios';
 import { OutboundLink as A } from 'gatsby-plugin-google-gtag';
+import FlashMessage from 'react-flash-message';
 import { withTranslation } from 'gatsby-plugin-react-i18next';
 
 // Import React Table
@@ -23,7 +23,7 @@ const STATUS_KEY = {
 };
 
 class CashbackForm extends Component {
-  state = { cashbackUrl: null, inputUrl: null }
+  state = { cashbackUrl: null, inputUrl: null, flashMessage: null }
 
   onSubmit = (e) => {
     e.preventDefault();
@@ -48,15 +48,20 @@ class CashbackForm extends Component {
         console.error(err);
         if (err.response) {
           const data = err.response.data || {};
-          return alert(data.msg || t('Something went wrong'));
+          this.showFlashMessage(data.msg || t('Something went wrong'));
+          return;
         }
 
-        return alert(err.msg || t('Something went wrong'));
+        this.showFlashMessage(err.msg || t('Something went wrong'));
       });
   }
 
   onChangeInput = (event) => {
     this.setState({ inputUrl: event.target.value });
+  }
+
+  showFlashMessage = (message) => {
+    this.setState({ flashMessage: null }, () => this.setState({ flashMessage: message }));
   }
 
   render() {
@@ -83,6 +88,11 @@ class CashbackForm extends Component {
           {cashbackUrlBox}
         </form>
 
+        {this.state.flashMessage
+          ? <FlashMessage duration={4000}>
+              <div className="pt-flash">{this.state.flashMessage}</div>
+            </FlashMessage>
+          : null}
       </div>
     );
   }

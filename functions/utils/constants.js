@@ -15,15 +15,15 @@ module.exports = {
     WRITE: 'google.firestore.document.write'
   },
   text: {
-    URL_NOT_FOUND: 'URL không tồn tại',
-    ERR_EMAIL_NOT_FOUND: 'Email không tồn tại',
-    ERR_URL_NOT_SUPPORTED: 'Xin lỗi, hiện tại chưa hỗ trợ URL này',
-    ERR_EMAIL_REQUIRED: 'Vui lòng đăng nhập',
-    ERR_TOKEN_INVALID: 'Token không đúng',
-    ERR_MISSING_URL: 'URL là bắt buộc',
-    ERR_CANNOT_FETCH_DATA: 'Không thể fetch data',
+    URL_NOT_FOUND: 'URL not found',
+    ERR_EMAIL_NOT_FOUND: 'Email not found',
+    ERR_URL_NOT_SUPPORTED: 'Sorry, this URL is not supported yet',
+    ERR_EMAIL_REQUIRED: 'Please sign in',
+    ERR_TOKEN_INVALID: 'Invalid token',
+    ERR_MISSING_URL: 'URL is required',
+    ERR_CANNOT_FETCH_DATA: 'Unable to fetch data',
     ERR_NOT_IS_ADMIN: 'User is not an admin user',
-    ERR_ID_NOT_FOUND: 'ID không tồn tại',
+    ERR_ID_NOT_FOUND: 'ID not found',
     ERR_500: '500'
   },
 
